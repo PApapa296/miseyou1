@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プルナディープ ユーカリが丘店専用SNS投稿作成ツール / SNS पोस्ट निर्माण उपकरण</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 100%;
+            margin: auto;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+            font-size: 1.5em;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 0.9em;
+        }
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #fff;
+            min-height: 200px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .dish-input {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .nepali {
+            font-style: italic;
+            color: #666;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SNS投稿作成ツール <span class="nepali">/ SNS पोस्ट निर्माण उपकरण</span></h1>
+        
+        <div>
+            <label>
+                <input type="checkbox" id="isNepaliInput" onchange="updateLanguage()">
+                ネパール語で入力 / नेपाली भाषामा इनपुट गर्नुहोस् 
+            </label>
+        </div>
+
+        <div>
+            <label for="postStyle">投稿スタイル <span class="nepali">/ पोस्ट शैली:</span></label>
+            <select id="postStyle">
+                <option value="casual">カジュアル / सामान्य</option>
+                <option value="formal">フォーマル / औपचारिक</option>
+                <option value="exciting">エキサイティング / रोमाञ्चक</option>
+            </select>
+        </div>
+
+        <div id="dishInputs"></div>
+
+        <div>
+            <label><input type="checkbox" id="includeLunch"> ランチ情報を含める <span class="nepali">/ लन्च जानकारी समावेश गर्नुहोस्</span></label>
+            <label><input type="checkbox" id="includeDinner"> ディナー情報を含める <span class="nepali">/ डिनर जानकारी समावेश गर्नुहोस्</span></label>
+            <label><input type="checkbox" id="includeSet"> セットメニュー情報を含める <span class="nepali">/ सेट मेनु जानकारी समावेश गर्नुहोस्</span></label>
+            <label><input type="checkbox" id="includeAllYouCanDrink"> 飲み放題情報を含める <span class="nepali">/ अल यु क्यान ड्रिंक जानकारी समावेश गर्नुहोस्</span></label>
+        </div>
+
+        <div>
+            <label for="additionalInfo">その他のお知らせ <span class="nepali">/ अन्य सूचना:</span></label>
+            <textarea id="additionalInfo" rows="4"></textarea>
+        </div>
+
+        <button onclick="generatePost()">SNS投稿を作成 <span class="nepali">/ SNS पोस्ट सिर्जना गर्नुहोस्</span></button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const translationDict = {
+            'मोमो': 'モモ',
+            'दाल भात': 'ダルバート',
+            'तन्दूरी चिकन': 'タンドリーチキン',
+            'बटर चिकन': 'バターチキン',
+            'नान': 'ナン',
+            'सामान्य': 'カジュアル',
+            'औपचारिक': 'フォーマル',
+            'रोमाञ्चक': 'エキサイティング'
+        };
+
+        function translateToJapanese(nepaliText) {
+            return translationDict[nepaliText] || nepaliText;
+        }
+
+        function updateLanguage() {
+            const isNepaliInput = document.getElementById('isNepaliInput').checked;
+            updatePlaceholders(isNepaliInput);
+        }
+
+        function updatePlaceholders(isNepali) {
+            const dishInputs = document.querySelectorAll('.dish-input');
+            dishInputs.forEach((input, index) => {
+                const nameInput = input.querySelector(`#dishName${index}`);
+                const descInput = input.querySelector(`#dishDescription${index}`);
+                if (isNepali) {
+                    nameInput.placeholder = 'मेनु नाम';
+                    descInput.placeholder = 'व्यञ्जनको विवरण';
+                } else {
+                    nameInput.placeholder = 'メニュー名';
+                    descInput.placeholder = '料理の説明';
+                }
+            });
+            document.getElementById('additionalInfo').placeholder = isNepali ? 'अन्य सूचना' : 'その他のお知らせ';
+        }
+
+        function createDishInputs() {
+            const dishInputs = document.getElementById('dishInputs');
+            dishInputs.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                dishInputs.innerHTML += `
+                    <div class="dish-input">
+                        <h3>おすすめ ${i + 1} <span class="nepali">/ सिफारिस ${i + 1}</span></h3>
+                        <input type="text" id="dishName${i}" placeholder="メニュー名">
+                        <input type="number" id="dishPrice${i}" placeholder="価格（円）">
+                        <textarea id="dishDescription${i}" placeholder="料理の説明"></textarea>
+                    </div>
+                `;
+            }
+            updateLanguage();
+        }
+
+        createDishInputs();
+
+        function generatePost() {
+            const isNepaliInput = document.getElementById('isNepaliInput').checked;
+            const postStyle = document.getElementById('postStyle').value;
+            const includeLunch = document.getElementById('includeLunch').checked;
+            const includeDinner = document.getElementById('includeDinner').checked;
+            const includeSet = document.getElementById('includeSet').checked;
+            const includeAllYouCanDrink = document.getElementById('includeAllYouCanDrink').checked;
+            const additionalInfo = document.getElementById('additionalInfo').value;
+
+            let post = '';
+            const date = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            if (postStyle === 'casual') {
+                post += `こんにちは！プルナディープ ユーカリが丘店です😊\n\n${date}の情報をお届けします！\n\n`;
+            } else if (postStyle === 'formal') {
+                post += `お客様各位\n\nプルナディープ ユーカリが丘店でございます。\n\n${date}のご案内を申し上げます。\n\n`;
+            } else {
+                post += `🎉大注目！プルナディープ ユーカリが丘店の${date}の最新情報です🎉\n\n`;
+            }
+
+            post += "📌 本日のおすすめ 📌\n";
+            for (let i = 0; i < 5; i++) {
+                const name = document.getElementById(`dishName${i}`).value;
+                const price = document.getElementById(`dishPrice${i}`).value;
+                const description = document.getElementById(`dishDescription${i}`).value;
+
+                if (name) {
+                    const japaneseName = isNepaliInput ? translateToJapanese(name) : name;
+                    post += `${i + 1}. ${japaneseName}`;
+                    if (isNepaliInput) post += ` (${name})`;
+                    post += `\n   価格: ${price}円\n`;
+                    post += `   ${isNepaliInput ? translateToJapanese(description) : description}\n\n`;
+                }
+            }
+
+            if (includeLunch) {
+                post += "🍽️ ランチタイム（11:00 AM – 2:30 PM）\nお得なランチセットをご用意しています！\n\n";
+            }
+            if (includeDinner) {
+                post += "🌙 ディナータイム（5:00 PM – 9:30 PM）\n本格的なネパール料理をお楽しみください。\n\n";
+            }
+            if (includeSet) {
+                post += "📦 セットメニュー\nお得なセットメニューもございます。\n\n";
+            }
+            if (includeAllYouCanDrink) {
+                post += "🍻 飲み放題（17:00〜21:30、2名様から）\n120分2,200円（税込）で多彩なドリンクをお楽しみいただけます。\n\n";
+            }
+
+            if (additionalInfo) {
+                post += "📢 その他のお知らせ 📢\n";
+                post += isNepaliInput ? translateToJapanese(additionalInfo) : additionalInfo;
+                post += "\n\n";
+            }
+
+            post += "ぜひご来店いただき、美味しいネパール料理をお楽しみください！\n\n";
+            post += "#ネパール料理 #プルナディープ #ユーカリが丘 #本日のおすすめ";
+
+            document.getElementById('output').innerText = post;
+        }
+    </script>
+</body>
+</html>
